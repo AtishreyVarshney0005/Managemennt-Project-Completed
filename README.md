@@ -70,9 +70,17 @@ npm install
 
 3. Create `.env` file:
 ```env
+# Local development
 PORT=5000
-DATABASE_URL=postgresql://postgres:password123@localhost:5432/inventory_db
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=inventory_db
+DB_PASSWORD=password123
+DB_PORT=5432
 JWT_SECRET=your_jwt_secret_key_here
+
+# Or, on Render, use the DATABASE_URL provided by Render PostgreSQL
+# DATABASE_URL=postgresql://postgres:password123@dpg-xxxxx.render.com:5432/inventory_db
 ```
 
 4. Start the server:
