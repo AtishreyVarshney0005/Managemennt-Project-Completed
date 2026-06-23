@@ -107,7 +107,53 @@ npm start
 
 The application will be available at `http://localhost:3000`
 
-## 📊 API Endpoints
+## � Deploy to Render
+
+This project can deploy as two Render services: one `web service` for the backend and one `static site` for the frontend. Use a Render PostgreSQL database for `DATABASE_URL`.
+
+### 1. Create Render PostgreSQL Database
+
+- In Render, create a new PostgreSQL database.
+- Note the generated `DATABASE_URL`.
+- Use the database name `inventory_db` or any name you prefer.
+
+### 2. Add Backend Service
+
+- Create a new Render Web Service.
+- Connect it to the `server` folder.
+- Set the build command to:
+```bash
+npm install
+```
+- Set the start command to:
+```bash
+npm start
+```
+- Add these environment variables in Render:
+  - `DATABASE_URL` = your Render PostgreSQL connection string
+  - `JWT_SECRET` = a secure random secret
+
+### 3. Add Frontend Static Site
+
+- Create a new Render Static Site.
+- Connect it to the `client` folder.
+- Set the build command to:
+```bash
+npm install && npm run build
+```
+- Set `publish` directory to:
+```bash
+build
+```
+- Add this environment variable in Render:
+  - `REACT_APP_API_BASE_URL` = `https://<your-backend-service>.onrender.com`
+
+### 4. Verify Deployment
+
+- The backend should respond on `https://<your-backend-service>.onrender.com`
+- The frontend should load and call the backend using `REACT_APP_API_BASE_URL`
+
+## �📊 API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - User registration

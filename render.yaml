@@ -1,0 +1,21 @@
+services:
+  - type: web_service
+    name: management-project-backend
+    env: node
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: DATABASE_URL
+        value: YOUR_RENDER_DATABASE_URL
+      - key: JWT_SECRET
+        value: your_jwt_secret_here
+  - type: static_site
+    name: management-project-frontend
+    env: static
+    plan: free
+    buildCommand: cd client && npm install && npm run build
+    publishPath: client/build
+    envVars:
+      - key: REACT_APP_API_BASE_URL
+        value: https://<your-backend-service>.onrender.com
