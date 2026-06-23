@@ -1,22 +1,33 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD', 'DB_PORT'];
-const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    }
+  : {
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: parseInt(process.env.DB_PORT, 10) || 5432,
+    };
 
-if (missingVars.length > 0) {
-  console.error('❌ ERROR: Missing environment variables:', missingVars.join(', '));
-  console.error('Check your .env file!');
-  process.exit(1);
+if (!process.env.DATABASE_URL) {
+  const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD', 'DB_PORT'];
+  const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+
+  if (missingVars.length > 0) {
+    console.error('❌ ERROR: Missing environment variables:', missingVars.join(', '));
+    console.error('Check your .env file!');
+    process.exit(1);
+  }
 }
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
+const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
   console.error('🔴 Unexpected pool error:', err);
