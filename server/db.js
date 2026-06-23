@@ -1,7 +1,8 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const poolConfig = process.env.DATABASE_URL
+const useDatabaseUrl = Boolean(process.env.DATABASE_URL);
+const poolConfig = useDatabaseUrl
   ? {
       connectionString: process.env.DATABASE_URL,
       ssl: {
@@ -9,20 +10,24 @@ const poolConfig = process.env.DATABASE_URL
       },
     }
   : {
-      user: process.env.DB_USER,
-      host: process.env.DB_HOST,
-      database: process.env.DB_NAME,
-      password: process.env.DB_PASSWORD,
-      port: parseInt(process.env.DB_PORT, 10) || 5432,
+      user: process.env.DB_USER || process.env.PGUSER,
+      host: process.env.DB_HOST || process.env.PGHOST,
+      database: process.env.DB_NAME || process.env.PGDATABASE,
+      password: process.env.DB_PASSWORD || process.env.PGPASSWORD,
+      port: parseInt(process.env.DB_PORT || process.env.PGPORT, 10) || 5432,
     };
 
-if (!process.env.DATABASE_URL) {
+if (!useDatabaseUrl) {
   const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD', 'DB_PORT'];
-  const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+  const requiredPgVars = ['PGUSER', 'PGHOST', 'PGDATABASE', 'PGPASSWORD', 'PGPORT'];
+  const havePgVars = requiredPgVars.every(v => process.env[v]);
 
-  if (missingVars.length > 0) {
-    console.error('❌ ERROR: Missing environment variables:', missingVars.join(', '));
-    console.error('Check your .env file!');
+  if (!requiredEnvVars.every(v => process.env[v]) && !havePgVars) {
+    const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+    console.error('❌ ERROR: Missing database environment variables.');
+    console.error('Provide either DB_* vars or PG* vars in your environment.');
+    console.error('Missing:', missingVars.join(', '));
+    console.error('Check your .env file or Render environment settings.');
     process.exit(1);
   }
 }
